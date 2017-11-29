@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#define INTL_DE
 
 /*****************************************************************
 /*                                                               *
@@ -69,7 +68,7 @@
 /*                                                               *
 /*****************************************************************/
 // increment on change
-#define SOFTWARE_VERSION "NRZ-2017-100"
+#define SOFTWARE_VERSION "0.1.0"
 
 /*****************************************************************
 /* Includes                                                      *
@@ -118,7 +117,7 @@
 #elif defined(INTL_PT)
 #include "intl_pt.h"
 #else
-#include "intl_de.h"
+#include "intl_en.h"
 #endif
 #include "ext_def.h"
 #include "html-content.h"
@@ -128,7 +127,7 @@
 /*****************************************************************/
 char wlanssid[65] = "Freifunk-disabled";
 char wlanpwd[65] = "";
-char current_lang[3] = "de";
+char current_lang[3] = "en";
 char www_username[65] = "admin";
 char www_password[65] = "feinstaub";
 bool www_basicauth_enabled = 0;
@@ -2658,7 +2657,7 @@ void display_values(const String& value_DHT_T, const String& value_DHT_H, const 
 		}
 		display.display();
 	}
-	
+
 // ----5----0----5----0
 // PM10/2.5: 1999/999
 // T/H: -10.0°C/100.0%
