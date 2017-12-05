@@ -1,9 +1,4 @@
 .pioenvs
 .piolibdeps
-examples
-keywords.txt
-library.json
-TinyGPS++.cpp
-TinyGPS++.h
 builds/*
 !builds/readme.md
