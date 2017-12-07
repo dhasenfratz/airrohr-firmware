@@ -173,7 +173,6 @@ void stop_SDS() {
 /*****************************************************************/
 void connect_WIFI() {
 	int retry_count = 0;
-	debug_out(String(WiFi.status()), DEBUG_INFO, 1);
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PWD); // Start WiFI
 
