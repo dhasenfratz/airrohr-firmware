@@ -1,24 +1,18 @@
-#define SOFTWARE_VERSION "0.1.0"
+#define SOFTWARE_VERSION "0.2.0"
 
 // WLAN config
 #define WIFI_SSID "WIFI-SSID" // provide SSID
 #define WIFI_PWD ""    // provide password
 #define WIFI_CONNECT_RETRIES 40
 
-// BasicAuth config
-#define WWW_USERNAME "admin"
-#define WWW_PASSWORD "feinstaub"
-#define WWW_BASICAUTH_ENABLED 0
-
 // Services to feed data with
-#define SEND_TO_LUFTDATEN 0
+#define SEND_TO_LUFTDATEN 1
 #define SEND_TO_MADAVI 1
 #define SEND_TO_OPENSENSEMAP 0
 #define SEND_TO_CSV 0
 #define SEND_TO_INFLUX 0
 
 #define SEND_INTERVAL_MS 145000
-#define WIFI_CONFIG_TIME_MS 600000
 
 // NTP Server
 #define NTP_SERVER "0.europe.pool.ntp.org"

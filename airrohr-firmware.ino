@@ -209,9 +209,6 @@ void send_data(const String& data, const int pin, const char* host, const int ht
 	request_head += F("Content-Length: "); request_head += String(data.length(), DEC) + "\r\n";
 	request_head += F("Connection: close\r\n\r\n");
 
-	// Use WiFiClient class to create TCP connections
-
- // TOOD: Code is this if else if mostly duplicate
 	if (httpPort == 443) {
 
 		WiFiClientSecure client_s;
@@ -226,13 +223,8 @@ void send_data(const String& data, const int pin, const char* host, const int ht
 
 		debug_out(F("Requesting URL: "), DEBUG_INFO, 0);
 		debug_out(url, DEBUG_INFO, 1);
-		debug_out(esp_chip_id, DEBUG_INFO, 1);
-		debug_out(data, DEBUG_INFO, 1);
-
-		// send request to the server
 
 		client_s.print(request_head);
-
 		client_s.println(data);
 
 		delay(10);
@@ -242,9 +234,6 @@ void send_data(const String& data, const int pin, const char* host, const int ht
 			char c = client_s.read();
 			debug_out(String(c), DEBUG_DEBUG, 0);
 		}
-
-		debug_out(F("\nclosing connection\n------\n\n"), DEBUG_INFO, 1);
-
 	} else {
 
 		WiFiClient client;
@@ -259,11 +248,8 @@ void send_data(const String& data, const int pin, const char* host, const int ht
 
 		debug_out(F("Requesting URL: "), DEBUG_INFO, 0);
 		debug_out(url, DEBUG_INFO, 1);
-		debug_out(esp_chip_id, DEBUG_INFO, 1);
-		debug_out(data, DEBUG_INFO, 1);
 
 		client.print(request_head);
-
 		client.println(data);
 
 		delay(10);
@@ -273,9 +259,6 @@ void send_data(const String& data, const int pin, const char* host, const int ht
 			char c = client.read();
 			debug_out(String(c), DEBUG_DEBUG, 0);
 		}
-
-		debug_out(F("\nclosing connection\n------\n\n"), DEBUG_INFO, 1);
-
 	}
 
 	debug_out(F("End connecting to "), DEBUG_INFO, 0);
@@ -429,7 +412,6 @@ String read_SDS() {
 	int position = 0;
 
 	if (long(current_time_ms - start_time_ms) < (long(SEND_INTERVAL_MS) - long(SDS_WARMUP_TIME_MS + SDS_READING_TIME_MS))) {
-		debug_out(F("Do not yet start SDS"), DEBUG_DEBUG, 1);
 		if (is_SDS_running) {
 			stop_SDS();
 		}
@@ -502,8 +484,6 @@ String read_SDS() {
 			stop_SDS();
 		}
 	}
-
-	debug_out(F("End reading SDS011"), DEBUG_DEBUG, 1);
 
 	return s;
 }
@@ -579,7 +559,6 @@ void loop() {
 
 	if (((current_time_ms - start_SDS_time_ms) > SDS_SAMPLE_TIME_MS) || ((current_time_ms - start_time_ms) > SEND_INTERVAL_MS)) {
 		if (SDS_ENABLED) {
-			debug_out(F("Call read_SDS"), DEBUG_DEBUG, 1);
 			result_SDS = read_SDS();
 			start_SDS_time_ms = current_time_ms;
 		}
@@ -591,17 +570,12 @@ void loop() {
 			result_DHT = read_DHT();
 		}
 
-		debug_out(F("Creating data string:"), DEBUG_INFO, 1);
 		data = data_first_part;
 		data_sample_times  = value_to_json("samples", String(long(sample_count)));
 		data_sample_times += value_to_json("min_micro", String(long(min_micro)));
 		data_sample_times += value_to_json("max_micro", String(long(max_micro)));
 
 		signal_strength = String(WiFi.RSSI());
-		debug_out(F("WLAN signal strength: "), DEBUG_INFO, 0);
-		debug_out(signal_strength, DEBUG_INFO, 0);
-		debug_out(F(" dBm"), DEBUG_INFO, 1);
-		debug_out(F("------"), DEBUG_INFO, 1);
 
 		if (SDS_ENABLED) {
 			data += result_SDS;
@@ -630,6 +604,7 @@ void loop() {
 			data.remove(data.length() - 1);
 		}
 		data += "]}";
+		debug_out(data, DEBUG_INFO, 1);
 
 		// sending to api(s)
 
