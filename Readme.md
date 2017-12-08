@@ -31,20 +31,21 @@ The project has the following external dependencies:
 ## Wiring
 
 ### SDS011
-* Pin 1 (TX)   -> Pin D1 (GPIO5)
-* Pin 2 (RX)   -> Pin D2 (GPIO4)
-* Pin 3 (GND)  -> GND
-* Pin 4 (2.5m) -> unused
-* Pin 5 (5V)   -> VU
-* Pin 6 (1m)   -> unused
+* Pin 1 (TX)   &rarr; Pin D1 (GPIO5)
+* Pin 2 (RX)   &rarr; Pin D2 (GPIO4)
+* Pin 3 (GND)  &rarr; GND
+* Pin 4 (2.5m) &rarr; unused
+* Pin 5 (5V)   &rarr; VU
+* Pin 6 (1m)   &rarr; unused
 
 ### DHT22
-* Pin 1 => 3V3
-* Pin 2 => Pin D7 (GPIO13)
-* Pin 3 => unused
-* Pin 4 => GND
+* Pin 1 &rarr; 3V3
+* Pin 2 &rarr; Pin D7 (GPIO13)
+* Pin 3 &rarr; unused
+* Pin 4 &rarr; GND
 
 ### Luftdaten.info API Pins
 The luftdaten.info API needs for each sample type a specific pin number to correctly match the measurements:
-* DHT22 => Pin 7
-* SDS011 => Pin 1
+
+* DHT22 &rarr; Pin 7
+* SDS011 &rarr; Pin 1
