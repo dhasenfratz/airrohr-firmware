@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dhasenfratz/airrohr-firmware.svg?branch=master)](https://travis-ci.org/dhasenfratz/airrohr-firmware)
+
 Airrohr Firmware
 ================
 Strip down firmware based on version `NRZ-2017-100` of the [luftdaten.info](http://luftdaten.info) airrohr-firmware:
