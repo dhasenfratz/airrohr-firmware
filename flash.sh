@@ -1,4 +1,12 @@
 #!/bin/bash
-file_name=$1
+dev_name=$1
+file_name=$2
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 device_name file_name"
+    echo "Example: $0 /dev/cu.wchusbserial1420 builds/airrohr-fw-0.2.0.bin"
+    exit 1
+fi
+
 # Platform: macOS
-~/Library/Arduino15/packages/esp8266/tools/esptool/0.4.9/esptool -vv -cd nodemcu -cb 57600 -ca 0x00000 -cp /dev/cu.wchusbserial1420 -cf $file_name
+esptool -vv -cd nodemcu -cb 57600 -ca 0x00000 -cp $dev_name -cf $file_name
