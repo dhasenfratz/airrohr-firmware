@@ -1,16 +1,17 @@
 #define SOFTWARE_VERSION "0.2.0"
 
 // WLAN config
-#define WIFI_SSID "WIFI-SSID" // provide SSID
-#define WIFI_PWD ""    // provide password
+#define WIFI_SSID "...." // provide SSID
+#define WIFI_PWD "...."    // provide password
 #define WIFI_CONNECT_RETRIES 40
 
 // Services to feed data with
-#define SEND_TO_LUFTDATEN 1
-#define SEND_TO_MADAVI 1
+#define SEND_TO_LUFTDATEN 0
+#define SEND_TO_MADAVI 0
 #define SEND_TO_OPENSENSEMAP 0
 #define SEND_TO_CSV 0
 #define SEND_TO_INFLUX 0
+#define SEND_TO_MQTT 1
 
 #define SEND_INTERVAL_MS 145000
 
@@ -39,6 +40,11 @@
 #define USER_INFLUX "" // provide InfluxDB user
 #define PWD_INFLUX "" // provide InfluxDB password
 
+// MQTT
+#define MQTT_BROKER "test.mosquitto.org"
+#define MQTT_TOPIC "ESP8266" // ESP8266's id is added as subtopic
+#define MQTT_PORT 1883
+
 // DHT22, temperature and humidtiy sensor
 #define DHT_ENABLED 1
 #define DHT_TYPE DHT22
@@ -64,7 +70,7 @@ const char TXT_CONTENT_TYPE_JSON[] PROGMEM = "application/json";
 const char TXT_CONTENT_TYPE_INFLUXDB[] PROGMEM = "application/x-www-form-urlencoded";
 
 // Debug level setting
-#define DEBUG_LEVEL 4
+#define DEBUG_LEVEL 3
 // Debug levels
 #define DEBUG_ERROR 1
 #define DEBUG_WARN 2

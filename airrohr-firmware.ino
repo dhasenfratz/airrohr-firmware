@@ -40,10 +40,14 @@
 #include <base64.h>
 #include <ArduinoJson.h>
 #include <DHT.h>
+#include <PubSubClient.h>
 
 #include "constants.h"
 
 long int sample_count = 0;
+
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
 
 /*****************************************************************
 /* SDS011 declarations                                           *
@@ -90,6 +94,8 @@ String basic_auth_influx = "";
 
 long last_page_load = millis();
 bool first_csv_line = true;
+
+String mqtt_topic = "";
 
 String data_first_part = "{\"software_version\": \"" + String(SOFTWARE_VERSION) + "\", \"sensordatavalues\":[";
 
@@ -268,6 +274,17 @@ void send_data(const String& data, const int pin, const char* host, const int ht
   yield();
 }
 
+void send_to_mqtt(const String topic, const String data) {
+  if (!mqttClient.connected()) {
+    return;
+  }
+
+  String mqtt_data = data;
+  mqtt_data.remove(mqtt_data.length() - 1);
+  mqtt_data = "{\"sensor_values\":[" + mqtt_data + "]}";
+  mqttClient.publish(topic.c_str(), mqtt_data.c_str());
+}
+
 /*****************************************************************
 /* send single sensor data to luftdaten.info api                 *
 /*****************************************************************/
@@ -378,7 +395,7 @@ String read_DHT() {
       debug_out(F("DHT22 couldn't be read"), DEBUG_ERROR, 1);
     } else {
       debug_out(F("Humidity    : "), DEBUG_INFO, 0);
-      debug_out(String(h) + "%", DEBUG_INFO, 1);
+      debug_out(String(h) + "%%", DEBUG_INFO, 1);
       debug_out(F("Temperature : "), DEBUG_INFO, 0);
       debug_out(String(t) + char(223) + "C", DEBUG_INFO, 1);
       last_value_DHT_T = float_to_string(t);
@@ -488,11 +505,26 @@ String read_SDS() {
   return s;
 }
 
+void reconnect_mqtt() {
+  debug_out(F("Attempting MQTT connection..."), DEBUG_INFO, 0);
+  // Create a random client ID
+  String clientId = "ESP8266Client-";
+  clientId += String(random(0xffff), HEX);
+  // Attempt to connect
+  if (mqttClient.connect(clientId.c_str())) {
+    debug_out("connected", DEBUG_INFO, 1);
+  } else {
+    debug_out("failed, rc=", DEBUG_INFO, 0);
+    debug_out(String(mqttClient.state()), DEBUG_INFO, 1);
+  }
+}
+
 /*****************************************************************
 /* The Setup                                                     *
 /*****************************************************************/
 void setup() {
   Serial.begin(9600);
+  randomSeed(micros());
   esp_chip_id = String(ESP.getChipId());
   WiFi.persistent(false);
   connect_WIFI();
@@ -511,10 +543,16 @@ void setup() {
   if (SEND_TO_OPENSENSEMAP) { debug_out(F(" * Send to opensensemap.org"), DEBUG_INFO, 1); }
   if (SEND_TO_CSV) { debug_out(F(" * Send to CSV to serial"), DEBUG_INFO, 1); }
   if (SEND_TO_INFLUX) { debug_out(F(" * Send to custom influx DB"), DEBUG_INFO, 1); }
-
-  if (SDS_ENABLED) {
-    stop_SDS();
+  if (SEND_TO_MQTT) {
+    debug_out(F(" * Send to custom MQTT DB"), DEBUG_INFO, 1);
+    debug_out(F("   - Broker: "), DEBUG_INFO, 0); debug_out(MQTT_BROKER, DEBUG_INFO, 1);
+    mqtt_topic = String(MQTT_TOPIC) + "/" + esp_chip_id;
+    debug_out(F("   - Topic: "), DEBUG_INFO, 0); debug_out(mqtt_topic, DEBUG_INFO, 1);
+    mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
   }
+
+  // Stop SDS as it is running by default after startup
+  stop_SDS();
 
   wdt_disable();
   wdt_enable(WATHDOG_TIMER_MS);
@@ -539,6 +577,13 @@ void loop() {
   unsigned long start_send_time_ms;
 
   send_failed = false;
+
+  if (SEND_TO_MQTT) {
+    if (!mqttClient.connected()) {
+      reconnect_mqtt();
+    }
+    mqttClient.loop();
+  }
 
   act_micro = micros();
   current_time_ms = millis();
@@ -585,6 +630,13 @@ void loop() {
         send_to_luftdaten(result_SDS, SDS_API_PIN, HOST_LUFTDATEN, PORT_LUFTDATEN, URL_LUFTDATEN, "SDS_");
         sum_send_time_ms += millis() - start_send_time_ms;
       }
+
+      if (SEND_TO_MQTT) {
+        debug_out(F("## Publish SDS data to MQTT broker"), DEBUG_INFO, 1);
+        start_send_time_ms = millis();
+        send_to_mqtt(mqtt_topic, result_SDS);
+        sum_send_time_ms += millis() - start_send_time_ms;
+      }
     }
 
     if (DHT_ENABLED) {
@@ -593,6 +645,13 @@ void loop() {
         debug_out(F("## Sending to luftdaten.info (DHT): "), DEBUG_INFO, 1);
         start_send_time_ms = millis();
         send_to_luftdaten(result_DHT, DHT_API_PIN, HOST_LUFTDATEN, PORT_LUFTDATEN, URL_LUFTDATEN, "DHT_");
+        sum_send_time_ms += millis() - start_send_time_ms;
+      }
+
+      if (SEND_TO_MQTT) {
+        debug_out(F("## Publish DHT data to MQTT broker"), DEBUG_INFO, 1);
+        start_send_time_ms = millis();
+        send_to_mqtt(mqtt_topic, result_DHT);
         sum_send_time_ms += millis() - start_send_time_ms;
       }
     }
