@@ -559,6 +559,11 @@ void setup() {
 
   start_time_ms = millis();
   start_SDS_time_ms = millis();
+
+  // Initialize LED as an output
+  pinMode(LED_GPIO, OUTPUT);
+  // Turn LED off
+  digitalWrite(LED_GPIO, HIGH);
 }
 
 /*****************************************************************
@@ -610,6 +615,8 @@ void loop() {
   }
 
   if (send_now) {
+    digitalWrite(LED_GPIO, LOW);
+
     if (DHT_ENABLED) {
       debug_out(F("Call read_DHT"), DEBUG_DEBUG, 1);
       result_DHT = read_DHT();
@@ -707,6 +714,8 @@ void loop() {
     min_micro = 1000000000;
     max_micro = 0;
     start_time_ms = millis(); // store the start time
+
+    digitalWrite(LED_GPIO, HIGH);
   }
   yield();
 }

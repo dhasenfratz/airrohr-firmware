@@ -67,6 +67,9 @@
 const char TXT_CONTENT_TYPE_JSON[] PROGMEM = "application/json";
 const char TXT_CONTENT_TYPE_INFLUXDB[] PROGMEM = "application/x-www-form-urlencoded";
 
+// Internal LED of ESP8266-12E is connected to GPIO2
+#define LED_GPIO 2
+
 // Debug level setting
 #define DEBUG_LEVEL 3
 // Debug levels
