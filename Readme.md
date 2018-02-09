@@ -4,7 +4,26 @@ Airrohr Firmware
 ================
 Strip down firmware based on version `NRZ-2017-100` of the [luftdaten.info](http://luftdaten.info) airrohr-firmware:
 
-https://github.com/opendata-stuttgart/sensors-software/tree/master/airrohr-firmware
+<https://github.com/opendata-stuttgart/sensors-software/tree/master/airrohr-firmware>
+
+
+## Building and Flashing
+
+Build the image with the build script:
+
+```
+./build.sh
+```
+
+The image is stored in the ```builds``` folder.
+
+The flash script flashes the indicated image to the ESP8266 module:
+
+```
+./flash /dev/cu.wchusbserial1420 builds/airrohr-fw-0.3.0.bin
+```
+
+The first argument denotes the device file name, the second argument denotes the firmware to be flashed.
 
 
 ## Wiring
