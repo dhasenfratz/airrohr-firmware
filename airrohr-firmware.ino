@@ -97,7 +97,7 @@ bool first_csv_line = true;
 
 String mqtt_topic = "";
 
-String data_first_part = "{\"software_version\": \"" + String(SOFTWARE_VERSION) + "\", \"sensordatavalues\":[";
+String data_first_part = "{\"sensordatavalues\":[";
 
 /*****************************************************************
 /* Debug output                                                  *

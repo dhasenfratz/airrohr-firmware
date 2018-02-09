@@ -1,5 +1,3 @@
-#define SOFTWARE_VERSION "0.2.0"
-
 // WLAN config
 #define WIFI_SSID "...." // provide SSID
 #define WIFI_PWD "...."    // provide password
