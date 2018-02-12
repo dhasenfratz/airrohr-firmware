@@ -283,6 +283,7 @@ void send_to_mqtt(const String topic, const String data) {
   mqtt_data.remove(mqtt_data.length() - 1);
   mqtt_data = "{\"sensor_values\":[" + mqtt_data + "]}";
   mqttClient.publish(topic.c_str(), mqtt_data.c_str());
+  debug_out(mqtt_data, DEBUG_INFO, 1);
 }
 
 /*****************************************************************
