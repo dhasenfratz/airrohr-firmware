@@ -585,10 +585,12 @@ void loop() {
   send_failed = false;
 
   if (SEND_TO_MQTT) {
-    if (!mqttClient.connected()) {
-      reconnect_mqtt();
+    if (WiFi.status() == WL_CONNECTED) {
+      if (!mqttClient.connected()) {
+        reconnect_mqtt();
+      }
+      mqttClient.loop();
     }
-    mqttClient.loop();
   }
 
   act_micro = micros();
