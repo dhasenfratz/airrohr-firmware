@@ -11,7 +11,7 @@
 #define SEND_TO_INFLUX 0
 #define SEND_TO_MQTT 1
 
-#define SEND_INTERVAL_MS 145000
+#define SEND_INTERVAL_MS 600000
 
 // NTP Server
 #define NTP_SERVER "0.europe.pool.ntp.org"
@@ -39,8 +39,8 @@
 #define PWD_INFLUX "" // provide InfluxDB password
 
 // MQTT
-#define MQTT_BROKER "test.mosquitto.org"
-#define MQTT_TOPIC "ESP8266" // ESP8266's id is added as subtopic
+#define MQTT_BROKER "52.54.126.159" //"mqtt.thingspeak.com"
+#define MQTT_TOPIC "channels/REPLACE_WITH_CHANNEL_ID/publish/REPLACE_WITH_API_ID"
 #define MQTT_PORT 1883
 
 // DHT22, temperature and humidtiy sensor

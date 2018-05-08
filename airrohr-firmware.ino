@@ -96,6 +96,9 @@ long last_page_load = millis();
 bool first_csv_line = true;
 
 String mqtt_topic = "";
+String mqtt_data_DHT = "";
+String mqtt_data_SDS = "";
+String mqtt_data_WIFI = "";
 
 String data_first_part = "{\"sensordatavalues\":[";
 
@@ -279,11 +282,8 @@ void send_to_mqtt(const String topic, const String data) {
     return;
   }
 
-  String mqtt_data = data;
-  mqtt_data.remove(mqtt_data.length() - 1);
-  mqtt_data = "{\"sensor_values\":[" + mqtt_data + "]}";
-  mqttClient.publish(topic.c_str(), mqtt_data.c_str());
-  debug_out(mqtt_data, DEBUG_INFO, 1);
+  mqttClient.publish(topic.c_str(), data.c_str());
+  debug_out(data, DEBUG_INFO, 1);
 }
 
 /*****************************************************************
@@ -403,6 +403,7 @@ String read_DHT() {
       last_value_DHT_H = float_to_string(h);
       s += value_to_json(F("temperature"), last_value_DHT_T);
       s += value_to_json(F("humidity"), last_value_DHT_H);
+      mqtt_data_DHT = "field1=" + last_value_DHT_T + "&field2=" + last_value_DHT_H;
       last_value_DHT_T.remove(last_value_DHT_T.length() - 1);
       last_value_DHT_H.remove(last_value_DHT_H.length() - 1);
     }
@@ -493,6 +494,7 @@ String read_SDS() {
       last_value_SDS_P2 = float_to_string(float(sds_pm25_sum) / (sds_val_count * 10.0));
       s += value_to_json("SDS_P1", last_value_SDS_P1);
       s += value_to_json("SDS_P2", last_value_SDS_P2);
+      mqtt_data_SDS = "field3=" + last_value_SDS_P1 + "&field4=" + last_value_SDS_P2;
       last_value_SDS_P1.remove(last_value_SDS_P1.length() - 1);
       last_value_SDS_P2.remove(last_value_SDS_P2.length() - 1);
     }
@@ -547,7 +549,7 @@ void setup() {
   if (SEND_TO_MQTT) {
     debug_out(F(" * Send to custom MQTT DB"), DEBUG_INFO, 1);
     debug_out(F("   - Broker: "), DEBUG_INFO, 0); debug_out(MQTT_BROKER, DEBUG_INFO, 1);
-    mqtt_topic = String(MQTT_TOPIC) + "/" + esp_chip_id;
+    mqtt_topic = String(MQTT_TOPIC);
     debug_out(F("   - Topic: "), DEBUG_INFO, 0); debug_out(mqtt_topic, DEBUG_INFO, 1);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
   }
@@ -640,13 +642,6 @@ void loop() {
         send_to_luftdaten(result_SDS, SDS_API_PIN, HOST_LUFTDATEN, PORT_LUFTDATEN, URL_LUFTDATEN, "SDS_");
         sum_send_time_ms += millis() - start_send_time_ms;
       }
-
-      if (SEND_TO_MQTT) {
-        debug_out(F("## Publish SDS data to MQTT broker"), DEBUG_INFO, 1);
-        start_send_time_ms = millis();
-        send_to_mqtt(mqtt_topic, result_SDS);
-        sum_send_time_ms += millis() - start_send_time_ms;
-      }
     }
 
     if (DHT_ENABLED) {
@@ -657,16 +652,18 @@ void loop() {
         send_to_luftdaten(result_DHT, DHT_API_PIN, HOST_LUFTDATEN, PORT_LUFTDATEN, URL_LUFTDATEN, "DHT_");
         sum_send_time_ms += millis() - start_send_time_ms;
       }
-
-      if (SEND_TO_MQTT) {
-        debug_out(F("## Publish DHT data to MQTT broker"), DEBUG_INFO, 1);
-        start_send_time_ms = millis();
-        send_to_mqtt(mqtt_topic, result_DHT);
-        sum_send_time_ms += millis() - start_send_time_ms;
-      }
     }
 
     data_sample_times += value_to_json("signal", signal_strength);
+    mqtt_data_WIFI = "field5=" + signal_strength;
+    if (SEND_TO_MQTT) {
+      debug_out(F("## Publish data to MQTT broker"), DEBUG_INFO, 1);
+      String mqtt_data = "";
+      mqtt_data = mqtt_data_DHT + "&" + mqtt_data_SDS + "&" + mqtt_data_WIFI;
+      start_send_time_ms = millis();
+      send_to_mqtt(mqtt_topic, mqtt_data);
+      sum_send_time_ms += millis() - start_send_time_ms;
+    }
     data += data_sample_times;
 
     if (data.lastIndexOf(',') == (data.length() - 1)) {
